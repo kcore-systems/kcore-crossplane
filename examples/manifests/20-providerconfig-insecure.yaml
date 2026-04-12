@@ -1,0 +1,12 @@
+# Example ProviderConfig for development when the controller allows plaintext gRPC.
+# Point endpoint at your kcore controller host:port.
+apiVersion: kcore.crossplane.io/v1alpha1
+kind: ProviderConfig
+metadata:
+  name: kcore-dev
+  namespace: kcore-provider
+spec:
+  endpoint: "127.0.0.1:9090"
+  insecure: true
+  credentials:
+    source: None

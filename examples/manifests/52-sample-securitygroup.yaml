@@ -1,0 +1,16 @@
+apiVersion: kcore.crossplane.io/v1alpha1
+kind: SecurityGroup
+metadata:
+  name: sample-sg
+  namespace: kcore-provider
+spec:
+  providerConfigRef:
+    name: kcore-dev
+  forProvider:
+    name: demo-sg
+    description: "Example security group"
+    rules:
+      - protocol: tcp
+        hostPort: 443
+        targetPort: 443
+        sourceCidr: "0.0.0.0/0"

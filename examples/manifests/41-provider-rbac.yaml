@@ -1,0 +1,19 @@
+# Minimal RBAC for running provider-kcore in-cluster (development). Tighten for production.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: provider-kcore
+  namespace: crossplane-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: provider-kcore-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: provider-kcore
+    namespace: crossplane-system

@@ -1,0 +1,19 @@
+# Replace image URL, checksum, storage, and network with values valid for your cluster.
+apiVersion: kcore.crossplane.io/v1alpha1
+kind: VirtualMachine
+metadata:
+  name: sample-vm
+  namespace: kcore-provider
+spec:
+  providerConfigRef:
+    name: kcore-dev
+  forProvider:
+    name: demo-vm
+    cpus: 2
+    memoryBytes: 2147483648
+    nics:
+      - network: default
+    imageUrl: "https://example.com/images/demo.qcow2"
+    imageSha256: "0000000000000000000000000000000000000000000000000000000000000000"
+    storageBackend: filesystem
+    storageSizeBytes: 10737418240

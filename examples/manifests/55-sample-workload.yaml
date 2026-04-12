@@ -1,0 +1,21 @@
+# VM workload example; use kind: container with container: { ... } for a container workload.
+apiVersion: kcore.crossplane.io/v1alpha1
+kind: Workload
+metadata:
+  name: sample-workload
+  namespace: kcore-provider
+spec:
+  providerConfigRef:
+    name: kcore-dev
+  forProvider:
+    kind: vm
+    vm:
+      name: demo-wl
+      cpus: 1
+      memoryBytes: 1073741824
+      nics:
+        - network: default
+    imageUrl: "https://example.com/images/demo.qcow2"
+    imageSha256: "0000000000000000000000000000000000000000000000000000000000000000"
+    storageBackend: filesystem
+    storageSizeBytes: 5368709120

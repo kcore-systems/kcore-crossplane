@@ -1,0 +1,13 @@
+# Requires an existing VM id or network name on the cluster for targetId.
+apiVersion: kcore.crossplane.io/v1alpha1
+kind: SecurityGroupAttachment
+metadata:
+  name: sample-sg-attach
+  namespace: kcore-provider
+spec:
+  providerConfigRef:
+    name: kcore-dev
+  forProvider:
+    securityGroup: demo-sg
+    targetKind: network
+    targetId: demo-net

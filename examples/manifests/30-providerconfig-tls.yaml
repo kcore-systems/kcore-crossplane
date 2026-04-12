@@ -1,0 +1,15 @@
+apiVersion: kcore.crossplane.io/v1alpha1
+kind: ProviderConfig
+metadata:
+  name: kcore-tls
+  namespace: kcore-provider
+spec:
+  endpoint: "controller.kcore.example.com:9090"
+  insecure: false
+  credentials:
+    source: Secret
+    secretRef:
+      name: kcore-controller-tls
+      namespace: kcore-provider
+      # Required by the CRD schema; provider-kcore reads ca.crt, tls.crt, tls.key from the Secret Data.
+      key: tls.crt

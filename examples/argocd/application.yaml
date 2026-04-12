@@ -1,0 +1,18 @@
+# Point repoURL at a Git repository containing examples/manifests (file:// URLs are not usable from the cluster).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kcore-provider-samples
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/your-org/kcore-crossplane.git
+    path: examples/manifests
+    targetRevision: main
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kcore-provider
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true

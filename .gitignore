@@ -1,0 +1,7 @@
+bin/
+dist/
+*.swp
+.idea/
+.vscode/
+.work/
+coverage.out

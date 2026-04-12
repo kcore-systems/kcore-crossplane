@@ -1,0 +1,28 @@
+# Example Deployment wiring the generated provider binary. Build and push the image,
+# or use kind load docker-image after docker build.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: provider-kcore
+  namespace: crossplane-system
+  labels:
+    app: provider-kcore
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: provider-kcore
+  template:
+    metadata:
+      labels:
+        app: provider-kcore
+    spec:
+      serviceAccountName: provider-kcore
+      automountServiceAccountToken: true
+      containers:
+        - name: provider
+          image: provider-kcore:dev
+          imagePullPolicy: IfNotPresent
+          args:
+            - --debug
+            - --poll=2m
