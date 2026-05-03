@@ -34,6 +34,34 @@ func WorkloadKind(s string) kcorepb.WorkloadKind {
 	}
 }
 
+// VmDesiredState parses declarative VM desired state (running / stopped).
+func VmDesiredState(s string) kcorepb.VmDesiredState {
+	switch strings.ToLower(strings.TrimSpace(s)) {
+	case "", "unspecified":
+		return kcorepb.VmDesiredState_VM_DESIRED_STATE_UNSPECIFIED
+	case "running", "run":
+		return kcorepb.VmDesiredState_VM_DESIRED_STATE_RUNNING
+	case "stopped", "stop":
+		return kcorepb.VmDesiredState_VM_DESIRED_STATE_STOPPED
+	default:
+		return kcorepb.VmDesiredState_VM_DESIRED_STATE_UNSPECIFIED
+	}
+}
+
+// WorkloadDesiredState parses container/workload declarative state.
+func WorkloadDesiredState(s string) kcorepb.WorkloadDesiredState {
+	switch strings.ToLower(strings.TrimSpace(s)) {
+	case "", "unspecified":
+		return kcorepb.WorkloadDesiredState_WORKLOAD_DESIRED_STATE_UNSPECIFIED
+	case "running", "run":
+		return kcorepb.WorkloadDesiredState_WORKLOAD_DESIRED_STATE_RUNNING
+	case "stopped", "stop":
+		return kcorepb.WorkloadDesiredState_WORKLOAD_DESIRED_STATE_STOPPED
+	default:
+		return kcorepb.WorkloadDesiredState_WORKLOAD_DESIRED_STATE_UNSPECIFIED
+	}
+}
+
 // SecurityGroupTargetKind parses "vm" / "network".
 func SecurityGroupTargetKind(s string) kcorepb.SecurityGroupTargetKind {
 	switch strings.ToLower(strings.TrimSpace(s)) {

@@ -126,7 +126,13 @@ func (e *external) Observe(ctx context.Context, cr *apisv1alpha1.VirtualMachine)
 		cr.Status.AtProvider.State = st.GetState().String()
 	}
 	if spec != nil {
-		upToDate := spec.GetCpu() == cr.Spec.ForProvider.CPUs && spec.GetMemoryBytes() == cr.Spec.ForProvider.MemoryBytes
+		cr.Status.AtProvider.StorageBackend = spec.GetStorageBackend()
+		cr.Status.AtProvider.StorageSizeBytes = spec.GetStorageSizeBytes()
+		cr.Status.AtProvider.DesiredState = spec.GetDesiredState().String()
+		wantDs := kcore.VmDesiredState(cr.Spec.ForProvider.DesiredState)
+		dsOK := cr.Spec.ForProvider.DesiredState == "" || spec.GetDesiredState() == wantDs
+		upToDate := spec.GetCpu() == cr.Spec.ForProvider.CPUs &&
+			spec.GetMemoryBytes() == cr.Spec.ForProvider.MemoryBytes && dsOK
 		cr.Status.SetConditions(xpv1.Available())
 		return managed.ExternalObservation{
 			ResourceExists:   true,

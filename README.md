@@ -4,6 +4,8 @@ Go module: `github.com/kcore/kcore-crossplane`
 
 This repository implements a **Crossplane provider** that reconciles Kubernetes custom resources against the kcore **controller** gRPC API (`Controller` service), using definitions aligned with [`proto/kcore/controller/v1/controller.proto`](proto/kcore/controller/v1/controller.proto) (mirrored from the kcore project).
 
+**Compatibility:** the checked-in protobuf matches **kcore / kcoreOS 0.2.x** (including nodes booted from the **0.2.0** appliance ISO). Run `make generate` after syncing `controller.proto` from the kcore tree.
+
 ## Layout
 
 | Path | Purpose |

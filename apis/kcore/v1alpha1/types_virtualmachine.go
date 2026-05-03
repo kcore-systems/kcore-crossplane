@@ -28,6 +28,10 @@ type Nic struct {
 // VirtualMachineParameters are fields passed to CreateVm.
 type VirtualMachineParameters struct {
 	TargetNode string `json:"targetNode,omitempty"`
+	// TargetDc is optional datacenter preference (matches controller CreateVm target_dc).
+	TargetDc string `json:"targetDc,omitempty"`
+	// DesiredState is running | stopped (optional; unspecified lets the controller default).
+	DesiredState string `json:"desiredState,omitempty"`
 
 	Name        string   `json:"name"`
 	CPUs        int32    `json:"cpus"`
@@ -47,10 +51,13 @@ type VirtualMachineParameters struct {
 
 // VirtualMachineObservation captures observed state from GetVm.
 type VirtualMachineObservation struct {
-	VMID       string `json:"vmId,omitempty"`
-	NodeID     string `json:"nodeId,omitempty"`
-	State      string `json:"state,omitempty"`
-	AssignedIP string `json:"assignedIp,omitempty"`
+	VMID             string `json:"vmId,omitempty"`
+	NodeID           string `json:"nodeId,omitempty"`
+	State            string `json:"state,omitempty"`
+	AssignedIP       string `json:"assignedIp,omitempty"`
+	StorageBackend   string `json:"storageBackend,omitempty"`
+	StorageSizeBytes int64  `json:"storageSizeBytes,omitempty"`
+	DesiredState     string `json:"desiredState,omitempty"`
 }
 
 // VirtualMachineSpec defines the desired state of a VirtualMachine.

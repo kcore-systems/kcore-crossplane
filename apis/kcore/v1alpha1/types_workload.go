@@ -21,6 +21,8 @@ type ContainerParameters struct {
 	StorageBackend   string            `json:"storageBackend,omitempty"`
 	StorageSizeBytes int64             `json:"storageSizeBytes,omitempty"`
 	MountTarget      string            `json:"mountTarget,omitempty"`
+	// DesiredState is running | stopped (optional).
+	DesiredState string `json:"desiredState,omitempty"`
 }
 
 // WorkloadParameters are passed to CreateWorkload.

@@ -68,6 +68,9 @@ spec:
                         items:
                           type: string
                         type: array
+                      desiredState:
+                        description: DesiredState is running | stopped (optional).
+                        type: string
                       env:
                         additionalProperties:
                           type: string
@@ -120,6 +123,10 @@ spec:
                       cpus:
                         format: int32
                         type: integer
+                      desiredState:
+                        description: DesiredState is running | stopped (optional;
+                          unspecified lets the controller default).
+                        type: string
                       disks:
                         items:
                           description: Disk mirrors kcore Disk.
@@ -170,6 +177,10 @@ spec:
                       storageSizeBytes:
                         format: int64
                         type: integer
+                      targetDc:
+                        description: TargetDc is optional datacenter preference (matches
+                          controller CreateVm target_dc).
+                        type: string
                       targetNode:
                         type: string
                     required:

@@ -111,6 +111,7 @@ func containerProto(c apisv1alpha1.ContainerParameters) *kcorepb.ContainerSpec {
 		StorageBackend:   c.StorageBackend,
 		StorageSizeBytes: c.StorageSizeBytes,
 		MountTarget:      c.MountTarget,
+		DesiredState:     kcore.WorkloadDesiredState(c.DesiredState),
 	}
 }
 

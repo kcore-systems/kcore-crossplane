@@ -59,6 +59,12 @@ const (
 	Controller_GetComplianceReport_FullMethodName     = "/kcore.controller.Controller/GetComplianceReport"
 	Controller_GetNetworkOverview_FullMethodName      = "/kcore.controller.Controller/GetNetworkOverview"
 	Controller_GetStorageOverview_FullMethodName      = "/kcore.controller.Controller/GetStorageOverview"
+	Controller_ListVolumes_FullMethodName             = "/kcore.controller.Controller/ListVolumes"
+	Controller_CreateDiskLayout_FullMethodName        = "/kcore.controller.Controller/CreateDiskLayout"
+	Controller_GetDiskLayout_FullMethodName           = "/kcore.controller.Controller/GetDiskLayout"
+	Controller_ListDiskLayouts_FullMethodName         = "/kcore.controller.Controller/ListDiskLayouts"
+	Controller_DeleteDiskLayout_FullMethodName        = "/kcore.controller.Controller/DeleteDiskLayout"
+	Controller_ClassifyDiskLayout_FullMethodName      = "/kcore.controller.Controller/ClassifyDiskLayout"
 )
 
 // ControllerClient is the client API for Controller service.
@@ -118,6 +124,21 @@ type ControllerClient interface {
 	// Storage overview: cluster-wide VM data-plane backends (filesystem / LVM / ZFS), LUKS stats,
 	// and per-node block inventory from each node agent (lsblk).
 	GetStorageOverview(ctx context.Context, in *GetStorageOverviewRequest, opts ...grpc.CallOption) (*GetStorageOverviewResponse, error)
+	// Volume inventory: list all provisioned VM volumes across the cluster.
+	ListVolumes(ctx context.Context, in *ListVolumesRequest, opts ...grpc.CallOption) (*ListVolumesResponse, error)
+	// DiskLayout resource — per-node declarative disk layout. Implemented on the
+	// node via disko; the operator surface uses the plain word "disk". Each
+	// DiskLayout targets exactly one node; dangerous requests (those that would
+	// touch a device currently backing an active workload) are refused by both
+	// the controller pre-flight and the authoritative node-agent re-classifier.
+	CreateDiskLayout(ctx context.Context, in *CreateDiskLayoutRequest, opts ...grpc.CallOption) (*CreateDiskLayoutResponse, error)
+	GetDiskLayout(ctx context.Context, in *GetDiskLayoutRequest, opts ...grpc.CallOption) (*GetDiskLayoutResponse, error)
+	ListDiskLayouts(ctx context.Context, in *ListDiskLayoutsRequest, opts ...grpc.CallOption) (*ListDiskLayoutsResponse, error)
+	DeleteDiskLayout(ctx context.Context, in *DeleteDiskLayoutRequest, opts ...grpc.CallOption) (*DeleteDiskLayoutResponse, error)
+	// Read-only pre-flight that runs the controller-side classifier without
+	// persisting or dispatching to the node. Used by `kctl diff disklayout` so
+	// operators can see SAFE/DANGEROUS before applying.
+	ClassifyDiskLayout(ctx context.Context, in *ClassifyDiskLayoutRequest, opts ...grpc.CallOption) (*ClassifyDiskLayoutResponse, error)
 }
 
 type controllerClient struct {
@@ -528,6 +549,66 @@ func (c *controllerClient) GetStorageOverview(ctx context.Context, in *GetStorag
 	return out, nil
 }
 
+func (c *controllerClient) ListVolumes(ctx context.Context, in *ListVolumesRequest, opts ...grpc.CallOption) (*ListVolumesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListVolumesResponse)
+	err := c.cc.Invoke(ctx, Controller_ListVolumes_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *controllerClient) CreateDiskLayout(ctx context.Context, in *CreateDiskLayoutRequest, opts ...grpc.CallOption) (*CreateDiskLayoutResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(CreateDiskLayoutResponse)
+	err := c.cc.Invoke(ctx, Controller_CreateDiskLayout_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *controllerClient) GetDiskLayout(ctx context.Context, in *GetDiskLayoutRequest, opts ...grpc.CallOption) (*GetDiskLayoutResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetDiskLayoutResponse)
+	err := c.cc.Invoke(ctx, Controller_GetDiskLayout_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *controllerClient) ListDiskLayouts(ctx context.Context, in *ListDiskLayoutsRequest, opts ...grpc.CallOption) (*ListDiskLayoutsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListDiskLayoutsResponse)
+	err := c.cc.Invoke(ctx, Controller_ListDiskLayouts_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *controllerClient) DeleteDiskLayout(ctx context.Context, in *DeleteDiskLayoutRequest, opts ...grpc.CallOption) (*DeleteDiskLayoutResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteDiskLayoutResponse)
+	err := c.cc.Invoke(ctx, Controller_DeleteDiskLayout_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *controllerClient) ClassifyDiskLayout(ctx context.Context, in *ClassifyDiskLayoutRequest, opts ...grpc.CallOption) (*ClassifyDiskLayoutResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ClassifyDiskLayoutResponse)
+	err := c.cc.Invoke(ctx, Controller_ClassifyDiskLayout_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ControllerServer is the server API for Controller service.
 // All implementations must embed UnimplementedControllerServer
 // for forward compatibility.
@@ -585,6 +666,21 @@ type ControllerServer interface {
 	// Storage overview: cluster-wide VM data-plane backends (filesystem / LVM / ZFS), LUKS stats,
 	// and per-node block inventory from each node agent (lsblk).
 	GetStorageOverview(context.Context, *GetStorageOverviewRequest) (*GetStorageOverviewResponse, error)
+	// Volume inventory: list all provisioned VM volumes across the cluster.
+	ListVolumes(context.Context, *ListVolumesRequest) (*ListVolumesResponse, error)
+	// DiskLayout resource — per-node declarative disk layout. Implemented on the
+	// node via disko; the operator surface uses the plain word "disk". Each
+	// DiskLayout targets exactly one node; dangerous requests (those that would
+	// touch a device currently backing an active workload) are refused by both
+	// the controller pre-flight and the authoritative node-agent re-classifier.
+	CreateDiskLayout(context.Context, *CreateDiskLayoutRequest) (*CreateDiskLayoutResponse, error)
+	GetDiskLayout(context.Context, *GetDiskLayoutRequest) (*GetDiskLayoutResponse, error)
+	ListDiskLayouts(context.Context, *ListDiskLayoutsRequest) (*ListDiskLayoutsResponse, error)
+	DeleteDiskLayout(context.Context, *DeleteDiskLayoutRequest) (*DeleteDiskLayoutResponse, error)
+	// Read-only pre-flight that runs the controller-side classifier without
+	// persisting or dispatching to the node. Used by `kctl diff disklayout` so
+	// operators can see SAFE/DANGEROUS before applying.
+	ClassifyDiskLayout(context.Context, *ClassifyDiskLayoutRequest) (*ClassifyDiskLayoutResponse, error)
 	mustEmbedUnimplementedControllerServer()
 }
 
@@ -714,6 +810,24 @@ func (UnimplementedControllerServer) GetNetworkOverview(context.Context, *GetNet
 }
 func (UnimplementedControllerServer) GetStorageOverview(context.Context, *GetStorageOverviewRequest) (*GetStorageOverviewResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetStorageOverview not implemented")
+}
+func (UnimplementedControllerServer) ListVolumes(context.Context, *ListVolumesRequest) (*ListVolumesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListVolumes not implemented")
+}
+func (UnimplementedControllerServer) CreateDiskLayout(context.Context, *CreateDiskLayoutRequest) (*CreateDiskLayoutResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateDiskLayout not implemented")
+}
+func (UnimplementedControllerServer) GetDiskLayout(context.Context, *GetDiskLayoutRequest) (*GetDiskLayoutResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetDiskLayout not implemented")
+}
+func (UnimplementedControllerServer) ListDiskLayouts(context.Context, *ListDiskLayoutsRequest) (*ListDiskLayoutsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListDiskLayouts not implemented")
+}
+func (UnimplementedControllerServer) DeleteDiskLayout(context.Context, *DeleteDiskLayoutRequest) (*DeleteDiskLayoutResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteDiskLayout not implemented")
+}
+func (UnimplementedControllerServer) ClassifyDiskLayout(context.Context, *ClassifyDiskLayoutRequest) (*ClassifyDiskLayoutResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ClassifyDiskLayout not implemented")
 }
 func (UnimplementedControllerServer) mustEmbedUnimplementedControllerServer() {}
 func (UnimplementedControllerServer) testEmbeddedByValue()                    {}
@@ -1456,6 +1570,114 @@ func _Controller_GetStorageOverview_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Controller_ListVolumes_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListVolumesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ControllerServer).ListVolumes(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Controller_ListVolumes_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ControllerServer).ListVolumes(ctx, req.(*ListVolumesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Controller_CreateDiskLayout_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateDiskLayoutRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ControllerServer).CreateDiskLayout(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Controller_CreateDiskLayout_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ControllerServer).CreateDiskLayout(ctx, req.(*CreateDiskLayoutRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Controller_GetDiskLayout_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetDiskLayoutRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ControllerServer).GetDiskLayout(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Controller_GetDiskLayout_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ControllerServer).GetDiskLayout(ctx, req.(*GetDiskLayoutRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Controller_ListDiskLayouts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListDiskLayoutsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ControllerServer).ListDiskLayouts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Controller_ListDiskLayouts_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ControllerServer).ListDiskLayouts(ctx, req.(*ListDiskLayoutsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Controller_DeleteDiskLayout_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteDiskLayoutRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ControllerServer).DeleteDiskLayout(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Controller_DeleteDiskLayout_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ControllerServer).DeleteDiskLayout(ctx, req.(*DeleteDiskLayoutRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Controller_ClassifyDiskLayout_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ClassifyDiskLayoutRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ControllerServer).ClassifyDiskLayout(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Controller_ClassifyDiskLayout_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ControllerServer).ClassifyDiskLayout(ctx, req.(*ClassifyDiskLayoutRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Controller_ServiceDesc is the grpc.ServiceDesc for Controller service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1622,6 +1844,30 @@ var Controller_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetStorageOverview",
 			Handler:    _Controller_GetStorageOverview_Handler,
+		},
+		{
+			MethodName: "ListVolumes",
+			Handler:    _Controller_ListVolumes_Handler,
+		},
+		{
+			MethodName: "CreateDiskLayout",
+			Handler:    _Controller_CreateDiskLayout_Handler,
+		},
+		{
+			MethodName: "GetDiskLayout",
+			Handler:    _Controller_GetDiskLayout_Handler,
+		},
+		{
+			MethodName: "ListDiskLayouts",
+			Handler:    _Controller_ListDiskLayouts_Handler,
+		},
+		{
+			MethodName: "DeleteDiskLayout",
+			Handler:    _Controller_DeleteDiskLayout_Handler,
+		},
+		{
+			MethodName: "ClassifyDiskLayout",
+			Handler:    _Controller_ClassifyDiskLayout_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

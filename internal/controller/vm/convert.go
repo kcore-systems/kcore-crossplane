@@ -1,6 +1,8 @@
 package vm
 
 import (
+	"strings"
+
 	apisv1alpha1 "github.com/kcore/kcore-crossplane/apis/kcore/v1alpha1"
 	kcorepb "github.com/kcore/kcore-crossplane/gen/proto/kcore/controller/v1"
 	"github.com/kcore/kcore-crossplane/internal/controller/kcore"
@@ -26,11 +28,14 @@ func BuildVmSpec(p apisv1alpha1.VirtualMachineParameters) *kcorepb.VmSpec {
 		})
 	}
 	return &kcorepb.VmSpec{
-		Name:        p.Name,
-		Cpu:         p.CPUs,
-		MemoryBytes: p.MemoryBytes,
-		Disks:       disks,
-		Nics:        nics,
+		Name:             p.Name,
+		Cpu:              p.CPUs,
+		MemoryBytes:      p.MemoryBytes,
+		Disks:            disks,
+		Nics:             nics,
+		StorageBackend:   strings.TrimSpace(p.StorageBackend),
+		StorageSizeBytes: p.StorageSizeBytes,
+		DesiredState:     kcore.VmDesiredState(p.DesiredState),
 	}
 }
 
@@ -46,5 +51,6 @@ func createVMRequest(p apisv1alpha1.VirtualMachineParameters) *kcorepb.CreateVmR
 		SshKeyNames:       p.SSHKeyNames,
 		StorageBackend:    kcore.StorageBackend(p.StorageBackend),
 		StorageSizeBytes:  p.StorageSizeBytes,
+		TargetDc:          strings.TrimSpace(p.TargetDc),
 	}
 }
